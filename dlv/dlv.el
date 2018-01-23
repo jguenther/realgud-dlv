@@ -13,15 +13,15 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-;;  `realgud:lldb' Main interface to lldb via Emacs
+;;  `realgud:dlv' Main interface to dlv via Emacs
 (require 'load-relative)
 (require 'realgud)
-(require-relative-list '("core" "track-mode") "realgud:lldb-")
+(require-relative-list '("core" "track-mode") "realgud:dlv-")
 
 ;; This is needed, or at least the docstring part of it is needed to
 ;; get the customization menu to work in Emacs 24.
-(defgroup realgud:lldb nil
-  "The realgud interface to lldb"
+(defgroup realgud:dlv nil
+  "The realgud interface to dlv"
   :group 'realgud
   :version "24.3")
 
@@ -29,17 +29,17 @@
 ;; User definable variables
 ;;
 
-(defcustom realgud:lldb-command-name
-  "lldb"
+(defcustom realgud:dlv-command-name
+  "dlv"
   "File name for executing the and command options.
 This should be an executable on your path, or an absolute file name."
   :type 'string
-  :group 'realgud:lldb)
+  :group 'realgud:dlv)
 
-(declare-function realgud:lldb-track-mode     'realgud:lldb-track-mode)
-(declare-function realgud-command             'realgud:lldb-core)
-(declare-function realgud:lldb-parse-cmd-args 'realgud:lldb-core)
-(declare-function realgud:lldb-query-cmdline  'realgud:lldb-core)
+(declare-function realgud:dlv-track-mode     'realgud:dlv-track-mode)
+(declare-function realgud-command             'realgud:dlv-core)
+(declare-function realgud:dlv-parse-cmd-args 'realgud:dlv-core)
+(declare-function realgud:dlv-query-cmdline  'realgud:dlv-core)
 (declare-function realgud:run-process         'realgud-core)
 (declare-function realgud:flatten             'realgud-utils)
 (declare-function realgud:remove-ansi-schmutz 'realgud-utils)
@@ -49,8 +49,8 @@ This should be an executable on your path, or an absolute file name."
 ;;
 
 ;;;###autoload
-(defun realgud:lldb (&optional opt-cmd-line no-reset)
-  "Invoke the lldb debugger and start the Emacs user interface.
+(defun realgud:dlv (&optional opt-cmd-line no-reset)
+  "Invoke the dlv debugger and start the Emacs user interface.
 
 OPT-CMD-LINE is treated like a shell string; arguments are
 tokenized by `split-string-and-unquote'.
@@ -64,28 +64,28 @@ marginal icons is reset. See `loc-changes-clear-buffer' to clear
 fringe and marginal icons.
 "
   (interactive)
-  (let* ((cmd-str (or opt-cmd-line (realgud:lldb-query-cmdline "lldb")))
-	 (cmd-args (split-string-and-unquote cmd-str))
-	 (parsed-args (realgud:lldb-parse-cmd-args cmd-args))
-	 (script-args (caddr parsed-args))
-	 (script-name (car script-args))
-	 (parsed-cmd-args
-	  (cl-remove-if 'nil (realgud:flatten parsed-args)))
-	 (cmd-buf (realgud:run-process realgud:lldb-command-name
-				       script-name parsed-cmd-args
-				       'realgud:lldb-minibuffer-history
-				       nil))
-	 )
+  (let* ((cmd-str (or opt-cmd-line (realgud:dlv-query-cmdline "dlv")))
+         (cmd-args (split-string-and-unquote cmd-str))
+         (parsed-args (realgud:dlv-parse-cmd-args cmd-args))
+         (script-args (caddr parsed-args))
+         (script-name (car script-args))
+         (parsed-cmd-args
+          (cl-remove-if 'nil (realgud:flatten parsed-args)))
+         (cmd-buf (realgud:run-process realgud:dlv-command-name
+                                       script-name parsed-cmd-args
+                                       'realgud:dlv-minibuffer-history
+                                       nil))
+         )
     (if cmd-buf
-	(with-current-buffer cmd-buf
-	  (set (make-local-variable 'realgud:lldb-file-remap))
-	  (realgud:remove-ansi-schmutz)
-	  )
+        (with-current-buffer cmd-buf
+          (make-local-variable 'realgud:dlv-file-remap)
+          (realgud:remove-ansi-schmutz)
+          )
       )
     )
   )
 
-(defalias 'lldb 'realgud:lldb)
+(defalias 'dlv 'realgud:dlv)
 
 (provide-me "realgud-")
 
