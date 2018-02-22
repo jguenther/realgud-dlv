@@ -61,7 +61,7 @@
 (setq line-group (realgud-loc-pat-line-group realgud-bt-pat))
 (assert-equal 0 (string-match realgud-bt-re test-text))
 
-(assert-equal "main_test.go"
+(assert-equal "./main_test.go"
               (substring test-text
                          (match-beginning file-group)
                          (match-end file-group)))
